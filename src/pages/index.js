@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import Chatbot from '../components/Chatbot';
+import Chat from '../components/Chatbot';
 
 export default function Home() {
   return (
@@ -11,7 +11,7 @@ export default function Home() {
       </Head>
 
       <main style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        <Chatbot />
+        <Chat />
       </main>
     </div>
   );

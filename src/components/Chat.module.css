@@ -1,0 +1,93 @@
+/* components/Chat.module.css */
+.chatContainer {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+  }
+  
+  .chatToggle {
+    background-color: #6200ea;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    font-size: 24px;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .chatBox {
+    background-color: white;
+    border-radius: 15px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    max-width: 300px;
+    width: 100%;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .chatHeader {
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+  
+  .chatBody {
+    flex: 1;
+    overflow-y: auto;
+  }
+  
+  .chatMessages {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .chatMessage {
+    border-radius: 10px;
+    padding: 10px;
+  }
+  
+  .assistant {
+    background-color: #e3f2fd;
+    align-self: flex-start;
+  }
+  
+  .user {
+    background-color: #c5cae9;
+    align-self: flex-end;
+  }
+  
+  .chatFooter {
+    border-top: 1px solid #eee;
+    padding-top: 10px;
+  }
+  
+  .chatFooter form {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .chatFooter input {
+    flex: 1;
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+  }
+  
+  .chatFooter button {
+    padding: 10px 20px;
+    background-color: #6200ea;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+  }
+  

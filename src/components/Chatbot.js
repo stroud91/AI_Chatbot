@@ -5,22 +5,48 @@ const Chatbot = () => {
     { sender: 'bot', text: 'Hello! How can I assist you today?' }
   ]);
   const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
   const [hover, setHover] = useState(false);
 
-
-  const handleSend = () => {
+  const handleSend = async () => {
     if (input.trim() === '') return;
 
-    let botResponse = 'I am sorry, I do not understand.';
-
-    if (input.toLowerCase().includes('hello')) {
-      botResponse = 'Hi there! How can I help you?';
-    } else if (input.toLowerCase().includes('help')) {
-      botResponse = 'Sure, I am here to help! What do you need assistance with?';
-    }
-
-    setMessages([...messages, { sender: 'user', text: input }, { sender: 'bot', text: botResponse }]);
+    const userMessage = { sender: 'user', text: input };
+    setMessages([...messages, userMessage]);
     setInput('');
+    setLoading(true);
+
+    try {
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_OPENAI_API_KEY}`,
+        },
+        body: JSON.stringify({
+          model: 'gpt-3.5-turbo',
+          messages: [
+            { role: 'system', content: 'You are a helpful assistant.' },
+            { role: 'user', content: input }
+          ],
+          max_tokens: 150,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const botMessage = { sender: 'bot', text: data.choices[0]?.message?.content?.trim() || 'No response from AI.' };
+      setMessages((prevMessages) => [...prevMessages, botMessage]);
+    } catch (error) {
+      console.error('Error fetching AI response:', error);
+      const errorMessage = { sender: 'bot', text: 'Sorry, I am having trouble understanding that right now. Please try again later.' };
+      setMessages((prevMessages) => [...prevMessages, errorMessage]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -31,6 +57,7 @@ const Chatbot = () => {
             <p style={styles.messageText}><strong>{message.sender === 'bot' ? 'Bot' : 'You'}:</strong> {message.text}</p>
           </div>
         ))}
+        {loading && <p style={styles.loadingText}>Bot is typing...</p>}
       </div>
       <div style={styles.inputContainer}>
         <input
@@ -42,9 +69,13 @@ const Chatbot = () => {
           onKeyPress={(e) => e.key === 'Enter' && handleSend()}
         />
         <button onClick={handleSend} style={{
-            ...styles.sendButton,...(hover && styles.sendButtonHover),}} 
-        onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
-        >Send</button>
+            ...styles.sendButton, ...(hover && styles.sendButtonHover),
+          }}
+          onMouseEnter={() => setHover(true)} 
+          onMouseLeave={() => setHover(false)}
+        >
+          Send
+        </button>
       </div>
     </div>
   );
@@ -116,6 +147,10 @@ const styles = {
   },
   sendButtonHover: {
     backgroundColor: '#3700b3',
+  },
+  loadingText: {
+    color: '#999',
+    fontStyle: 'italic',
   },
 };
 
