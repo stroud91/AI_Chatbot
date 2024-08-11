@@ -6,7 +6,6 @@ const Chatbot3 = () => {
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
-  const [hover, setHover] = useState(false);
 
   const handleSend = async () => {
     if (input.trim() === '') return;
@@ -17,7 +16,7 @@ const Chatbot3 = () => {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/chat-rag', {
+      const response = await fetch('/api/pinecone', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -56,12 +55,7 @@ const Chatbot3 = () => {
           placeholder="Type your message..."
           onKeyPress={(e) => e.key === 'Enter' && handleSend()}
         />
-        <button onClick={handleSend} style={{
-            ...styles.sendButton, ...(hover && styles.sendButtonHover),
-          }}
-          onMouseEnter={() => setHover(true)} 
-          onMouseLeave={() => setHover(false)}
-        >
+        <button onClick={handleSend} style={styles.sendButton}>
           Send
         </button>
       </div>
@@ -132,9 +126,6 @@ const styles = {
     cursor: 'pointer',
     boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
     transition: 'background-color 0.3s ease',
-  },
-  sendButtonHover: {
-    backgroundColor: '#3700b3',
   },
   loadingText: {
     color: '#999',

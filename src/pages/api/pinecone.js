@@ -1,19 +1,19 @@
-import { PineconeClient } from '@pinecone-database/pinecone';
-import { Configuration, OpenAIApi } from 'openai';
-
-const pinecone = new PineconeClient({
-  apiKey: process.env.PINECONE_API_KEY,
-  environment: 'us-west1-gcp' 
-});
+const { PineconeClient } = require('@pinecone-database/pinecone');
+const { Configuration, OpenAIApi } = require('openai');
 
 
 const configuration = new Configuration({
   apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
 });
-
 const openai = new OpenAIApi(configuration);
 
-export default async function handler(req, res) {
+
+const pinecone = new PineconeClient({
+  apiKey: process.env.PINECONE_API_KEY,
+  environment: process.env.PINECONE_ENVIRONMENT 
+});
+
+module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Only POST requests are allowed' });
   }
@@ -25,33 +25,36 @@ export default async function handler(req, res) {
   }
 
   try {
-   
+ 
     const embeddingResponse = await openai.createEmbedding({
       model: 'text-embedding-ada-002',
-      input: prompt
+      input: prompt,
     });
+    const embedding = embeddingResponse.data[0].embedding;
 
-    const promptEmbedding = embeddingResponse.data[0].embedding;
-
-
-    const queryResponse = await pinecone.query({
-      indexName: 'your-index-name', 
-      queryRequest: {
-        topK: 5,
-        includeValues: true,
-        includeMetadata: true,
-        vector: promptEmbedding
+   
+    const index = pinecone.Index(process.env.PINECONE_INDEX_NAME);
+    await index.upsert([
+      {
+        id: `vec_${Date.now()}`,
+        values: embedding,
+        metadata: { text: prompt }
       }
+    ]);
+
+  
+    const queryResponse = await index.query({
+      topK: 2,
+      vector: embedding,
+      includeValues: true,
+      includeMetadata: true,
     });
-
     const relevantDocuments = queryResponse.matches.map(match => match.metadata.text);
-
-
     const combinedPrompt = `${prompt}\n\nRelevant Information:\n${relevantDocuments.join('\n')}`;
 
-
+  
     const completionResponse = await openai.createChatCompletion({
-      model: 'gpt-3.5-turbo', 
+      model: 'gpt-3.5-turbo',
       messages: [
         { role: 'system', content: 'You are a helpful assistant.' },
         { role: 'user', content: combinedPrompt }
@@ -62,7 +65,7 @@ export default async function handler(req, res) {
     const botResponse = completionResponse.data.choices[0]?.message?.content?.trim() || 'No response from AI.';
     res.status(200).json({ text: botResponse });
   } catch (error) {
-    console.error('Error fetching AI response:', error);
-    res.status(500).json({ message: 'Error fetching AI response. Please try again.' });
+    console.error('Error processing the request:', error);
+    res.status(500).json({ message: 'Error processing the request.' });
   }
-}
+};
