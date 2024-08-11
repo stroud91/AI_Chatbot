@@ -19,12 +19,15 @@ const Chatbot2 = () => {
     setLoading(true);
 
     try {
+    
+      const region = process.env.NEXT_PUBLIC_AWS_REGION || 'us-east-1';
+
       
-      const stsClient = new STSClient();
+      const stsClient = new STSClient({ region });
       await stsClient.send(new GetCallerIdentityCommand({}));
 
-   
-      const bedrockClient = new BedrockClient();
+  
+      const bedrockClient = new BedrockClient({ region });
 
       const command = new InvokeModelCommand({
         modelId: 'anthropic.claude-v1', 
