@@ -11,6 +11,7 @@
   "dependencies": {
     "@aws-sdk/client-bedrock": "^3.624.0",
     "@aws-sdk/client-sts": "^3.624.0",
+    "@pinecone-database/pinecone": "^3.0.0",
     "next": "14.2.5",
     "node": "^18.17.0",
     "openai": "^4.55.0",
