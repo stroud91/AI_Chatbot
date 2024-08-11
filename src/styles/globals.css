@@ -4,6 +4,7 @@ body {
     font-family: 'Poppins', sans-serif;
     background-color: #f7f7f7;
     color: #333;
+    background-image: url('./ba.webp');
   }
   
   h1, h2, h3, h4, h5, h6 {
